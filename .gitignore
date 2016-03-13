@@ -1,0 +1,16 @@
+
+build/*.iml.*
+*.iml
+.idea
+target/
+out/
+gen-external-apklibs/
+gen/
+tmp/
+bin/
+.classpath
+.project
+project.properties
+build/
+local.properties
+.gradle
