@@ -1,0 +1,9 @@
+<manifest package="pl.kalisz.kamil.windowmanager"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity android:name=".ui.TestActivity"></activity>
+        <activity android:name="android.app.Activity"></activity>
+    </application>
+
+</manifest>
