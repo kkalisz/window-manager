@@ -40,6 +40,11 @@ public class TestActivity extends Activity implements ActivityStarter {
         startActivityForResult(intent,requestCode);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        windowStarter.handleResult(requestCode,data,resultCode);
+    }
+
     public WindowStarter getWindowStarter() {
         return windowStarter;
     }

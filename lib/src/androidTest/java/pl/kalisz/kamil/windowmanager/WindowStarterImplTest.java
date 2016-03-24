@@ -36,49 +36,61 @@ import pl.kalisz.kamil.windowmanager.ui.TestActivity;
 public class WindowStarterImplTest
 {
     public static final String TEST_REQUEST_CODE = "TEST_REQUEST_CODE";
+    public static final Integer INTEGER = 74;
 
     @Rule
     public ActivityTestRule<TestActivity> activityTestRule = new ActivityTestRule<>(TestActivity.class);
 
-    private Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-
     @Test
     public void whenStartActivityFromManagerActivityIsCalled()
     {
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+
         Intent activityIntent = new Intent(activityTestRule.getActivity(), Activity.class);
 
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(0,new Intent());
-        Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(Activity.class.getName(),activityResult,false);
+        Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(Activity.class.getName(),activityResult,true);
 
         activityTestRule.getActivity().getWindowStarter().startActivity(TEST_REQUEST_CODE,activityIntent);
 
+        instrumentation.waitForIdleSync();
+
         Assert.assertEquals(1,monitor.getHits());
+
+        instrumentation.removeMonitor(monitor);
+
     }
 
     @Test
     public void whenStartActivityFromManagerActivityIsAndListenerIsRegisteredResultIsReturned()
     {
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+
         WindowStarter windowStarter = activityTestRule.getActivity().getWindowStarter();
 
         Intent activityIntent = new Intent(activityTestRule.getActivity(), Activity.class);
 
-        Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(0,new Intent());
-        Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(Activity.class.getName(),activityResult,false);
+        Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(74,new Intent());
+        Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(Activity.class.getName(),activityResult,true);
 
-        final CallbackHandler<Intent> resultCallback = new CallbackHandler<>();
+        final CallbackHandler<Integer> resultCallback = new CallbackHandler<>();
 
         windowStarter.register(TEST_REQUEST_CODE, new IntentHandler()
         {
             @Override
             public void onActivityResult(String requestCode, @NonNull Intent intent, int resultCode) {
-                resultCallback.setCallback(intent);
+                resultCallback.setCallback(resultCode);
             }
         });
 
         windowStarter.startActivity(TEST_REQUEST_CODE,activityIntent);
 
-        Assert.assertEquals(activityIntent,resultCallback.getLastCallback());
+        instrumentation.waitForIdleSync();
+
+        Assert.assertEquals(INTEGER,resultCallback.getLastCallback());
         Assert.assertEquals(1,resultCallback.getHits());
+
+        instrumentation.removeMonitor(monitor);
     }
 
 
