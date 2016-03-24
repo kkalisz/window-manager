@@ -60,4 +60,22 @@ public class RequestCodeGeneratorTest {
 
         Assert.assertEquals(firstGeneratedCode, secondGeneratedCode);
     }
+
+    @Test
+    public void whenGetRawRequestCodeForValueNotGeneratedByGeneratorWillReturnNull() {
+        RequestCodeGenerator requestCodeGenerator = new RequestCodeGenerator();
+
+        Assert.assertNull(requestCodeGenerator.getRawRequestCode(4));
+    }
+
+    @Test
+    public void whenGetRawRequestCodeForValueGeneratedByGeneratorWillReturnSameCode() {
+        RequestCodeGenerator requestCodeGenerator = new RequestCodeGenerator();
+
+        String requestCode = "REQUEST_CODE";
+
+        int generatedRequestCode = requestCodeGenerator.generate(requestCode);
+
+        Assert.assertEquals(requestCode,requestCodeGenerator.getRawRequestCode(generatedRequestCode));
+    }
 }
