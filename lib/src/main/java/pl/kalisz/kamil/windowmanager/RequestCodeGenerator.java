@@ -25,13 +25,15 @@ import java.util.Map;
  */
 //TODO add saving and restoring state after rotation
 public class RequestCodeGenerator {
+    private static final int MINIMAL_REQUEST_CODE = 1;
     private Logger logger = LoggerFactory.getLogger(RequestCodeGenerator.class);
 
     private HashMap<String, Integer> generatedCodes = new HashMap<>();
 
     public int generate(@NonNull String requestCode) {
         if (!generatedCodes.containsKey(requestCode)) {
-            generatedCodes.put(requestCode, generatedCodes.size());
+            // well if we wana get result from activity request code must be bigger than 0
+            generatedCodes.put(requestCode, generatedCodes.size()+ MINIMAL_REQUEST_CODE);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Generated int request code for: {} with value: {}"

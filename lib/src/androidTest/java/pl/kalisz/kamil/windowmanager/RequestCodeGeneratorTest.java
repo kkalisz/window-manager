@@ -26,6 +26,16 @@ import org.junit.runner.RunWith;
 public class RequestCodeGeneratorTest {
 
     @Test
+    public void firstGeneratedCodeIsBiggerThnZero() {
+        RequestCodeGenerator requestCodeGenerator = new RequestCodeGenerator();
+        String stringCode = "REQUEST_CODE";
+
+        int generatedCode = requestCodeGenerator.generate(stringCode);
+
+        Assert.assertTrue(generatedCode > 0);
+    }
+
+    @Test
     public void whenGenerateCodeForStringNextGenerationWillReturnSameCode() {
         RequestCodeGenerator requestCodeGenerator = new RequestCodeGenerator();
         String stringCode = "REQUEST_CODE";
