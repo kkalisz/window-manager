@@ -28,5 +28,5 @@ public interface IntentHandler
      * @param intent intent to be started
      * @param resultCode result from started intent
      */
-    void onActivityResult(String requestCode, @NonNull Intent intent, int resultCode);
+    void onActivityResult(@NonNull String requestCode, @NonNull Intent intent, int resultCode);
 }
