@@ -1,5 +1,7 @@
 package pl.kalisz.kamil.windowmanager;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import org.slf4j.Logger;
@@ -24,8 +26,9 @@ import java.util.Map;
  * limitations under the License.
  */
 //TODO add saving and restoring state after rotation
-public class RequestCodeGenerator {
+public class RequestCodeGenerator implements StateSaver{
     private static final int MINIMAL_REQUEST_CODE = 1;
+    private static final String STATE = "RequestCodeGenerator_STATE";
     private Logger logger = LoggerFactory.getLogger(RequestCodeGenerator.class);
 
     private HashMap<String, Integer> generatedCodes = new HashMap<>();
@@ -50,5 +53,16 @@ public class RequestCodeGenerator {
             }
         }
         return null;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle savedState) {
+        savedState.putSerializable(STATE,generatedCodes);
+    }
+
+    @Override
+    public void onRestoreInstanceState(@NonNull Bundle state) {
+        HashMap<String,Integer> savedCodes = (HashMap<String, Integer>) state.getSerializable(STATE);
+        generatedCodes.putAll(savedCodes);
     }
 }

@@ -1,5 +1,7 @@
 package pl.kalisz.kamil.windowmanager;
 
+import android.os.Bundle;
+import android.os.Parcel;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Assert;
@@ -87,5 +89,25 @@ public class RequestCodeGeneratorTest {
         int generatedRequestCode = requestCodeGenerator.generate(requestCode);
 
         Assert.assertEquals(requestCode,requestCodeGenerator.getRawRequestCode(generatedRequestCode));
+    }
+
+    @Test
+    public void whenGenerateCodeAndSaveGeneratorAfterRestoringGeneratedValuesAreRestored()
+    {
+        RequestCodeGenerator requestCodeGenerator = new RequestCodeGenerator();
+        String requestCode = "REQUEST_CODE";
+        requestCodeGenerator.generate(requestCode);
+
+        Bundle savedState = new Bundle();
+        requestCodeGenerator.onSaveInstanceState(savedState);
+
+        Parcel parcel = Parcel.obtain();
+
+        savedState.writeToParcel(parcel,0);
+        parcel.setDataPosition(0);
+
+        Bundle restoredState = Bundle.CREATOR.createFromParcel(parcel);
+
+        requestCodeGenerator.onRestoreInstanceState(restoredState);
     }
 }
