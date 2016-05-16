@@ -25,7 +25,6 @@ import java.util.Map;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//TODO add saving and restoring state after rotation
 public class RequestCodeGenerator implements StateSaver{
     private static final int MINIMAL_REQUEST_CODE = 1;
     private static final String STATE = "RequestCodeGenerator_STATE";

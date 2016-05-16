@@ -1,6 +1,7 @@
 package pl.kalisz.kamil.windowmanager;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import org.slf4j.Logger;
@@ -29,70 +30,58 @@ import java.util.Map;
  * Class for handling and cacheing results from activities
  */
 //TODO add saving pending results on screen rotation
-public class ResultHandler implements IntentHandler
-{
+public class ResultHandler implements IntentHandler, StateSaver {
+    private static final String STATE = "ResultHandler_STATE";
     private Logger logger = LoggerFactory.getLogger(ResultHandler.class);
-
-    public class PendingResult
-    {
-        public PendingResult(int resultCode, Intent data) {
-            this.resultCode = resultCode;
-            this.data = data;
-        }
-
-        int resultCode;
-
-        Intent data;
-    }
 
     private Map<String, IntentHandler> registeredHandlers = new HashMap<>();
 
     private HashMap<String, PendingResult> pendingResults = new HashMap<>();
 
-    //private Map<String,PendingResult> cachedResults = new HashMap<>();
-
     @Override
     public void onActivityResult(@NonNull String requestCode, @NonNull Intent intent, int resultCode) {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("handling result for requestCode: {} with data: {} and resultCode: {}",requestCode,intent,resultCode);
+        if (logger.isDebugEnabled()) {
+            logger.debug("handling result for requestCode: {} with data: {} and resultCode: {}", requestCode, intent, resultCode);
         }
-        if (registeredHandlers.containsKey(requestCode))
-        {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("returned result for: {} to : %s",requestCode,registeredHandlers.get(requestCode));
+        if (registeredHandlers.containsKey(requestCode)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("returned result for: {} to : %s", requestCode, registeredHandlers.get(requestCode));
             }
             registeredHandlers.get(requestCode).onActivityResult(requestCode, intent, resultCode);
-        } else
-        {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("cached result for requestCode: {}",requestCode);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("cached result for requestCode: {}", requestCode);
             }
-            pendingResults.put(requestCode,new PendingResult(resultCode,intent));
+            pendingResults.put(requestCode, new PendingResult(resultCode, intent));
         }
     }
 
     /**
-     *
-     * @param requestCode request code for identifying result for handler
+     * @param requestCode   request code for identifying result for handler
      * @param intentHandler intent handler that will handle result for this {@code requestCode}
      */
     public void registerIntentHandler(String requestCode, IntentHandler intentHandler) {
         registeredHandlers.put(requestCode, intentHandler);
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("registered handler for requestCode: {} with: {}",requestCode, intentHandler);
+        if (logger.isDebugEnabled()) {
+            logger.debug("registered handler for requestCode: {} with: {}", requestCode, intentHandler);
         }
-        if(pendingResults.containsKey(requestCode))
-        {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("returned result for: {} to : %s",requestCode,intentHandler);
+        if (pendingResults.containsKey(requestCode)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("returned result for: {} to : %s", requestCode, intentHandler);
             }
             PendingResult pendingResult = pendingResults.remove(requestCode);
-            intentHandler.onActivityResult(requestCode,pendingResult.data,pendingResult.resultCode);
+            intentHandler.onActivityResult(requestCode, pendingResult.getData(), pendingResult.getResultCode());
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedState) {
+        savedState.putSerializable(STATE, pendingResults);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle state) {
+        Map<String, PendingResult> restoredState = (Map<String, PendingResult>) state.getSerializable(STATE);
+        pendingResults.putAll(restoredState);
     }
 }

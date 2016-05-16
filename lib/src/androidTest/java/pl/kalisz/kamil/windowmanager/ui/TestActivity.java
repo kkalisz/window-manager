@@ -27,12 +27,13 @@ import pl.kalisz.kamil.windowmanager.WindowStarterImpl;
  */
 public class TestActivity extends Activity implements ActivityStarter {
 
-    private WindowStarter windowStarter;
+    private WindowStarterImpl windowStarter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         windowStarter = new WindowStarterImpl(this);
+        windowStarter.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -47,5 +48,11 @@ public class TestActivity extends Activity implements ActivityStarter {
 
     public WindowStarter getWindowStarter() {
         return windowStarter;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        windowStarter.onSaveInstanceState(outState);
     }
 }

@@ -1,6 +1,7 @@
 package pl.kalisz.kamil.windowmanager;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 /**
@@ -18,7 +19,7 @@ import android.support.annotation.NonNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class WindowStarterImpl implements WindowStarter {
+public class WindowStarterImpl implements WindowStarter, StateSaver {
     private ActivityStarter activityStarter;
 
     private RequestCodeGenerator requestCodeGenerator;
@@ -34,24 +35,37 @@ public class WindowStarterImpl implements WindowStarter {
     @Override
     public void startActivity(String requestCode, Intent intent) {
         int requestCodeForIntent = requestCodeGenerator.generate(requestCode);
-        activityStarter.startActivity(requestCodeForIntent,intent);
+        activityStarter.startActivity(requestCodeForIntent, intent);
     }
 
     @Override
     public void register(String requestCode, IntentHandler intentHandler) {
-        resultHandler.registerIntentHandler(requestCode,intentHandler);
+        resultHandler.registerIntentHandler(requestCode, intentHandler);
     }
 
     @Override
-    public boolean handleResult(int requestCode, Intent resultIntent, int resultCode){
+    public boolean handleResult(int requestCode, Intent resultIntent, int resultCode) {
         String rawRequestCode = requestCodeGenerator.getRawRequestCode(requestCode);
         //if raw request code is null that means, intent was not started from this Window starter
         // and we should not try to handler result
-        if(rawRequestCode != null) {
+        if (rawRequestCode != null) {
             resultHandler.onActivityResult(rawRequestCode, resultIntent, resultCode);
         }
         return rawRequestCode != null;
     }
 
 
+    @Override
+    public void onSaveInstanceState(Bundle savedState) {
+        resultHandler.onSaveInstanceState(savedState);
+        requestCodeGenerator.onSaveInstanceState(savedState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle state) {
+        if (state != null) {
+            resultHandler.onRestoreInstanceState(state);
+            requestCodeGenerator.onRestoreInstanceState(state);
+        }
+    }
 }
