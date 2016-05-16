@@ -78,4 +78,7 @@ dependencies {
     androidTestCompile 'com.android.support.test:runner:0.4.1'
 }
 
+connectedCheck << {
+    println '##teamcity[jacocoReport dataPath=\'lib/build/outputs/code-coverage/connected/coverage.ec\' includes=\'pl.kalisz.kamil*\' classpath=\'-:lib/build/intermediates/classes/androidTest//** +:lib/build/intermediates/classes/debug//**\']'
+}
 bintrayUpload.dependsOn("install")
