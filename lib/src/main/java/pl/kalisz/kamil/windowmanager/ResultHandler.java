@@ -81,7 +81,12 @@ public class ResultHandler implements IntentHandler, StateSaver {
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
+        // null check ?
         Map<String, PendingResult> restoredState = (Map<String, PendingResult>) state.getSerializable(STATE);
-        pendingResults.putAll(restoredState);
+        for(Map.Entry<String, PendingResult> resultKey : restoredState.entrySet())
+        {
+            PendingResult resultData = resultKey.getValue();
+            onActivityResult(resultKey.getKey(), resultData.getData(), resultData.getResultCode());
+        }
     }
 }

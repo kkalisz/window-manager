@@ -111,16 +111,7 @@ public class ResultHandlerTest {
         originalResultHandler.onActivityResult(firstRequestCode, new Intent(), firstResultCode);
         originalResultHandler.onActivityResult(secondRequestCode, new Intent(), secondResultCode);
 
-        Bundle savedState = new Bundle();
-        originalResultHandler.onSaveInstanceState(savedState);
-
-        Parcel parcel = Parcel.obtain();
-
-        savedState.writeToParcel(parcel,0);
-        parcel.setDataPosition(0);
-
-        Bundle restoredState = Bundle.CREATOR.createFromParcel(parcel);
-        restoredState.setClassLoader(getClass().getClassLoader());
+        Bundle restoredState = saveHandlerState(originalResultHandler);
 
         ResultHandler restoredResultHandler = new ResultHandler();
         restoredResultHandler.onRestoreInstanceState(restoredState);
@@ -158,16 +149,7 @@ public class ResultHandlerTest {
         originalResultHandler.onActivityResult(firstRequestCode, new Intent(), firstResultCode);
         originalResultHandler.onActivityResult(secondRequestCode, new Intent(), secondResultCode);
 
-        Bundle savedState = new Bundle();
-        originalResultHandler.onSaveInstanceState(savedState);
-
-        Parcel parcel = Parcel.obtain();
-
-        savedState.writeToParcel(parcel,0);
-        parcel.setDataPosition(0);
-
-        Bundle restoredState = Bundle.CREATOR.createFromParcel(parcel);
-        restoredState.setClassLoader(getClass().getClassLoader());
+        Bundle restoredState = saveHandlerState(originalResultHandler);
 
         ResultHandler restoredResultHandler = new ResultHandler();
 
@@ -204,5 +186,48 @@ public class ResultHandlerTest {
         Assert.assertEquals(secondResultCode,integerCallbackHandler.getCallback(1));
         Assert.assertEquals(thirdResultCode,integerCallbackHandler.getCallback(2));
 
+    }
+
+    @Test
+    public void whenStateIsRestoredAfterRegisteringListenersIntentHandlerIsInvoked()
+    {
+        ResultHandler originalResultHandler = new ResultHandler();
+        String firstRequestCode = "REQ_CODE";
+        Integer firstResultCode = 23;
+        originalResultHandler.onActivityResult(firstRequestCode, new Intent(), firstResultCode);
+
+        Bundle restoredState = saveHandlerState(originalResultHandler);
+
+        ResultHandler restoredResultHandler = new ResultHandler();
+
+        final CallbackHandler<Integer> integerCallbackHandler = new CallbackHandler<>();
+
+
+        restoredResultHandler.registerIntentHandler(firstRequestCode, new IntentHandler() {
+            @Override
+            public void onActivityResult(@NonNull String requestCode, @NonNull Intent intent, int resultCode) {
+                integerCallbackHandler.setCallback(resultCode);
+            }
+        });
+
+        restoredResultHandler.onRestoreInstanceState(restoredState);
+
+        Assert.assertEquals(1, integerCallbackHandler.getHits());
+    }
+
+    @NonNull
+    private Bundle saveHandlerState(ResultHandler originalResultHandler)
+    {
+        Bundle savedState = new Bundle();
+        originalResultHandler.onSaveInstanceState(savedState);
+
+        Parcel parcel = Parcel.obtain();
+
+        savedState.writeToParcel(parcel,0);
+        parcel.setDataPosition(0);
+
+        Bundle restoredState = Bundle.CREATOR.createFromParcel(parcel);
+        restoredState.setClassLoader(getClass().getClassLoader());
+        return restoredState;
     }
 }
