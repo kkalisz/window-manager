@@ -29,7 +29,6 @@ import java.util.Map;
 /**
  * Class for handling and cacheing results from activities
  */
-//TODO add saving pending results on screen rotation
 public class ResultHandler implements IntentHandler, StateSaver {
     private static final String STATE = "ResultHandler_STATE";
     private Logger logger = LoggerFactory.getLogger(ResultHandler.class);
